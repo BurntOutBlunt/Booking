@@ -24,6 +24,7 @@ from app.hotels.router import router as router_hotels
 from app.images.router import router as router_images
 from app.pages.router import router as router_pages
 from app.users.router import router_auth, router_users
+from app.logger import logger
 
 app = FastAPI(
     title="Бронирование Отелей",
@@ -68,12 +69,6 @@ app.add_middleware(
 )
 
 
-# Подключение версионирования
-# app = VersionedFastAPI(app,
-#     version_format='{major}',
-#     prefix_format='/api/v{major}',
-# )
-
 app.include_router(router_pages)
 
 if settings.MODE == "TEST":
@@ -107,16 +102,16 @@ admin.add_view(BookingsAdmin)
 app.mount("/static", StaticFiles(directory="app/static"), "static")
 
 
-# @app.middleware("http")
-# async def add_process_time_header(request: Request, call_next):
-#     start_time = time.time()
-#     response = await call_next(request)
-#     process_time = time.time() - start_time
-#     # При подключении Prometheus + Grafana подобный лог не требуется
-#     logger.info("Request handling time", extra={
-#         "process_time": round(process_time, 4)
-#     })
-#     return response
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    # При подключении Prometheus + Grafana подобный лог не требуется
+    logger.info("Request handling time", extra={
+        "process_time": round(process_time, 4)
+    })
+    return response
 
 # Вы можете заметить один из минусов FastAPI -- вся конфигурация происходит
 # в одном файле. Порой он может довольно сильно разрастаться.
