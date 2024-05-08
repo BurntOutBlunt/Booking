@@ -34,5 +34,5 @@
   docker compose up
 ```
 
-API будет находится по адресу localhost:7777/docs
+API будет находится по адресу http://localhost:7777/docs
 
